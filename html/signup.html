@@ -327,95 +327,52 @@
       register(type);
     }
 
-    async function handleSignup(event) {
-      event.preventDefault();
+    async function register(type) {
+      const form = document.querySelector(`#${type === 'Client' ? 'clientForm' : 'ownerForm'}`);
+      const formData = new FormData(form);
+      const errorElement = document.getElementById(type === 'Client' ? 'clientError' : 'ownerError');
 
-      const form = event.target;
-      const errorElement = document.getElementById('error-message');
-      const successElement = document.getElementById('success-message');
-
-      errorElement.style.display = 'none';
-      successElement.style.display = 'none';
-
-      const inputs = form.querySelectorAll('input[required]');
+      // Construire un objet simple pour envoyer en JSON
       const data = {};
-      const missingFields = [];
-
-      // Réinitialise les styles des champs
-      inputs.forEach(input => {
-        const value = input.value.trim();
-        data[input.name] = value;
-        input.style.borderColor = '#cbd5e0';
-
-        if (!value) {
-          missingFields.push(input.placeholder || input.name);
-          input.style.borderColor = '#e53e3e'; // rouge
-        }
+      formData.forEach((value, key) => {
+        // Attention: adapter ici les noms aux attendus PHP (ex: mot_de_passe et telephone)
+        if (key === 'password') key = 'mot_de_passe';
+        if (key === 'phone') key = 'telephone';
+        data[key] = value;
       });
 
-      if (missingFields.length > 0) {
-        errorElement.innerHTML = `Merci de compléter les champs suivants :<br>• ${missingFields.join('<br>• ')}`;
-        errorElement.style.display = 'block';
-        return;
-      }
-
-      // Validation du mot de passe
-      const password = data.password;
-      const passwordErrors = [];
-
-      if (password.length < 8) passwordErrors.push("au moins 8 caractères");
-      if (!/[A-Z]/.test(password)) passwordErrors.push("une majuscule");
-      if (!/[0-9]/.test(password)) passwordErrors.push("un chiffre");
-      if (!/[^A-Za-z0-9]/.test(password)) passwordErrors.push("un caractère spécial");
-
-      if (passwordErrors.length > 0) {
-        errorElement.textContent = `Mot de passe invalide : il doit contenir ${passwordErrors.join(', ')}.`;
-        errorElement.style.display = 'block';
-        return;
-      }
+      const url = type === 'Propriétaire'
+        ? `https://airlockunlock.alwaysdata.net/AirlockUnlock/proprietaire/inscription.php`
+        : `https://airlockunlock.alwaysdata.net/AirlockUnlock/client/inscription.php`;
 
       try {
-        const response = await fetch('../APIs/inscription.php', {
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
         });
 
         const result = await response.json();
 
-        if (result.success) {
-          successElement.textContent = 'Inscription réussie ! Redirection en cours...';
-          successElement.style.display = 'block';
-          form.reset();
+        if (response.ok && !result.error) {
+          errorElement.textContent = 'Inscription réussie ! Redirection en cours...';
+          errorElement.style.color = '#38a169';
+          errorElement.style.display = 'block';
 
-          // Redirection après un court délai
           setTimeout(() => {
-            window.location.href = 'connexion.html';
+            window.location.href = 'index.html';
           }, 2000);
         } else {
-          let errorMessage = "Une erreur est survenue.";
-
-          if (result.error) {
-            if (result.error.includes("email")) {
-              errorMessage = "Cette adresse e-mail est déjà utilisée.";
-            } else if (result.error.includes("téléphone")) {
-              errorMessage = "Ce numéro de téléphone est déjà enregistré.";
-            } else if (result.error.includes("invalide")) {
-              errorMessage = "Données saisies invalides. Veuillez vérifier les champs.";
-            } else {
-              errorMessage = result.error;
-            }
-          }
-
-          errorElement.textContent = errorMessage;
+          errorElement.textContent = result.error || `Erreur lors de l'inscription : ${response.statusText}`;
+          errorElement.style.color = '#e53e3e';
           errorElement.style.display = 'block';
         }
       } catch (error) {
-        errorElement.textContent = 'Impossible de contacter le serveur. Veuillez vérifier votre connexion Internet ou réessayer plus tard.';
+        errorElement.textContent = `Erreur réseau : ${error.message}`;
+        errorElement.style.color = '#e53e3e';
         errorElement.style.display = 'block';
-        console.error('Erreur réseau :', error);
       }
     }
 
