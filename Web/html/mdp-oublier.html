@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AirLockUnlock - Mot de passe oublié</title>
+  <link rel="icon" href="img/icon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-image: url('img/still-life-keys-new-home.jpg');
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .header {
+      background-color: rgba(70, 130, 180, 0.8);
+      padding: 20px;
+      border-bottom: 1px solid #e8edf3;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header img {
+      width: 40px;
+      height: 40px;
+    }
+    .input-field {
+      width: 100%;
+      padding: 12px 40px 12px 12px; /* espace à droite pour œil */
+      border-radius: 8px;
+      border: 1px solid #cbd5e0;
+      margin-bottom: 15px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+      box-sizing: border-box;
+    }
+    .input-error {
+      border-color: #e53e3e !important; /* rouge */
+    }
+    .input-valid {
+      border-color: #38a169 !important; /* vert */
+    }
+    .button-primary {
+      width: 100%;
+      padding: 12px;
+      background-color: #4682b4;
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+    .button-primary:hover {
+      background-color: #2c5282;
+    }
+    .form-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .signup-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    .signup-link a {
+      color: #4682b4;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+    .error-message {
+      color: #e53e3e;
+      text-align: center;
+      margin-bottom: 15px;
+      display: none;
+    }
+    .success-message {
+      color: #38a169;
+      text-align: center;
+      margin-bottom: 15px;
+      display: none;
+    }
+    /* Conteneur pour input + œil */
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    /* Bouton œil */
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toggle-password svg {
+      width: 20px;
+      height: 20px;
+      fill: #666;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="flex items-center gap-4">
+      <img src="img/logo.png" alt="Logo" />
+      <h1 class="text-xl font-bold">AirLockUnlock</h1>
+    </div>
+  </header>
+
+  <div class="flex justify-center items-center flex-1">
+    <div class="form-container">
+      <div class="section-title">Mot de passe oublié</div>
+
+      <div id="successMessage" class="success-message"></div>
+      <div id="errorMessage" class="error-message"></div>
+
+      <form id="emailForm">
+        <input id="email" type="email" placeholder="Adresse e-mail" class="input-field" required />
+        <button type="submit" class="button-primary">Vérifier l'adresse</button>
+      </form>
+
+      <form id="resetForm" style="display:none;">
+        <div class="password-wrapper">
+          <input
+            id="newPassword"
+            type="password"
+            placeholder="Nouveau mot de passe (min 8 caractères)"
+            class="input-field"
+            required
+          />
+          <button type="button" class="toggle-password" aria-label="Afficher/Masquer le mot de passe">
+            <!-- Icône œil fermé par défaut -->
+            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+              <circle cx="12" cy="12" r="2.5"/>
+            </svg>
+          </button>
+        </div>
+        <button type="submit" class="button-primary">Changer le mot de passe</button>
+      </form>
+
+      <div class="signup-link">
+        <p>Retour à la <a href="index.html">connexion</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const emailForm = document.getElementById('emailForm');
+    const resetForm = document.getElementById('resetForm');
+    const emailInput = document.getElementById('email');
+    const newPasswordInput = document.getElementById('newPassword');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const togglePasswordBtn = document.querySelector('.toggle-password');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    emailForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+
+      const email = emailInput.value.trim();
+      if (!email) {
+        errorMessage.textContent = 'Veuillez entrer votre adresse e-mail.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+        const apiHost = window.location.hostname;
+
+        const formData = new FormData();
+        formData.append('email', email);
+
+        fetch(`https://airlockunlock.alwaysdata.net/AirlockUnlock/client/changer-mdp.php`, {
+          method: 'POST',
+          body: formData,
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 'success') {
+            successMessage.textContent = 'Adresse email validée, veuillez entrer votre nouveau mot de passe.';
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+
+            emailForm.style.display = 'none';
+            resetForm.style.display = 'block';
+          } else {
+            errorMessage.textContent = data.message;
+            errorMessage.style.display = 'block';
+          }
+        })
+        .catch(() => {
+          errorMessage.textContent = 'Erreur lors de la vérification de l\'email.';
+          errorMessage.style.display = 'block';
+        });
+    });
+
+    resetForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+
+      const newPassword = newPasswordInput.value.trim();
+      if (newPassword.length < 8) {
+        errorMessage.textContent = 'Le mot de passe doit contenir au moins 8 caractères.';
+        errorMessage.style.display = 'block';
+        newPasswordInput.classList.add('input-error');
+        newPasswordInput.classList.remove('input-valid');
+        return;
+      } else {
+        newPasswordInput.classList.remove('input-error');
+        newPasswordInput.classList.add('input-valid');
+      }
+      
+      const apiHost = window.location.hostname;
+      const formData = new FormData();
+      formData.append('email', emailInput.value.trim());
+      formData.append('nouveau_mdp', newPassword);
+        
+
+
+      fetch(`https://airlockunlock.alwaysdata.net/AirlockUnlock/client/changer-mdp.php`, {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 'success') {
+            successMessage.textContent = 'Mot de passe mis à jour avec succès.';
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            resetForm.style.display = 'none';
+          } else {
+            errorMessage.textContent = data.message;
+            errorMessage.style.display = 'block';
+          }
+        })
+        .catch(() => {
+          errorMessage.textContent = 'Erreur lors de la mise à jour du mot de passe.';
+          errorMessage.style.display = 'block';
+        });
+    });
+
+    newPasswordInput.addEventListener('input', () => {
+      if (newPasswordInput.value.length < 8) {
+        newPasswordInput.classList.add('input-error');
+        newPasswordInput.classList.remove('input-valid');
+      } else {
+        newPasswordInput.classList.remove('input-error');
+        newPasswordInput.classList.add('input-valid');
+      }
+    });
+
+    togglePasswordBtn.addEventListener('click', () => {
+      const type = newPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      newPasswordInput.setAttribute('type', type);
+
+      // Change icône
+      if (type === 'text') {
+        eyeIcon.innerHTML = `
+          <path d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" fill="none"/>
+          <path d="M1 1l22 22" stroke="#666" stroke-width="2"/>
+        `;
+      } else {
+        eyeIcon.innerHTML = `
+          <path d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+          <circle cx="12" cy="12" r="2.5"/>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

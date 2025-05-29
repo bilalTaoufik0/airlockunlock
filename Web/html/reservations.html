@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="img/icon.png" type="image/png">
+    <title>AirLockUnlock - Mes Réservations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <style>
+        :root {
+            --primary: #007BFF;
+            --secondary: #0056b3;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+        }
+        /* ... ton CSS inchangé ... */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        header {
+            background-color: var(--primary);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .logo img {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+        .logo-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background-color: white;
+            color: var(--primary);
+        }
+        .btn-primary:hover {
+            background-color: var(--light-gray);
+            transform: translateY(-1px);
+        }
+        .btn-logout {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+        .btn-logout:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            text-align: center;
+        }
+        .reservations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .reservation {
+            background-color: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        .reservation:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .reservation img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .reservation-details {
+            padding: 1.25rem;
+        }
+        .reservation-details h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        .reservation-details p {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        .reservation-details span {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .reservation-details .lock-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+        /* Profile Menu Styles */
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .profile img {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            border: 2px solid white;
+            transition: transform 0.3s ease;
+        }
+        .profile img:hover {
+            transform: scale(1.1);
+        }
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: 3.5rem;
+            right: 0;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            z-index: 1000;
+            overflow: hidden;
+            min-width: 200px;
+        }
+        .profile-menu.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .profile-menu ul {
+            list-style: none;
+        }
+        .profile-menu ul li {
+            padding: 0.75rem 1.25rem;
+            transition: background-color 0.3s ease;
+        }
+        .profile-menu ul li:hover {
+            background-color: var(--light-gray);
+        }
+        .profile-menu ul li a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            display: block;
+        }
+        .profile-menu ul li a:hover {
+            color: var(--primary);
+        }
+        .owner-only {
+            display: none;
+        }
+
+        .reservations-wrapper {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .reservation-column {
+        flex: 1;
+        min-width: 300px;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    .reservation-column h2 {
+        text-align: center;
+        padding: 10px;
+        border-bottom: 2px solid #eee;
+        font-size: 1.4em;
+    }
+
+    .col-passees h2 {
+        color: #b30000;
+        border-color: #b30000;
+    }
+
+    .col-encours h2 {
+        color: #1a8c1a;
+        border-color: #1a8c1a;
+    }
+
+    .col-avenir h2 {
+        color: #333;
+        border-color: #555;
+    }
+
+    .reservation {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        background: white;
+        transition: box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+
+    .reservation:hover {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .reservation img {
+        width: 100%;
+        height: auto;
+        max-height: 180px;
+        object-fit: cover;
+    }
+
+    .reservation-details {
+        padding: 10px;
+    }
+
+    .reservation-details h3 {
+        margin-top: 0;
+        font-size: 1.2em;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="img/logo.png" alt="AirLockUnlock Logo" />
+            <span class="logo-text">AirLockUnlock</span>
+        </div>
+        <nav class="nav-links">
+            <a href="accueil.html"><i class="fas fa-home"></i> Accueil</a>
+        </nav>
+        <div class="profile-container">
+            <a href="signup.html" class="btn btn-primary"><i class="fas fa-home"></i> Devenir propriétaire</a>
+            <div class="profile">
+                <img src="img/hasbula.jpg" alt="User Icon" class="user-icon" />
+                <div class="profile-menu">
+                    <ul>
+                        <li><a href="profile.html"><i class="fas fa-user"></i> Profil</a></li>
+                        <li><a href="accueilpro.html" class="owner-only"><i class="fas fa-user-tie"></i> Accueil Pro</a></li>
+                        <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Mes Réservations</h1>
+
+        <!-- Réservations -->
+        <div class="reservations" id="reservations-list">
+            <!-- Les réservations seront ajoutées ici dynamiquement -->
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 AirLockUnlock. Tous droits réservés.</p>
+            <div class="footer-links">
+                <a href="#">Confidentialité</a>
+                <a href="#">Conditions</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(
+                atob(base64)
+                    .split('')
+                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function fetchReservations() {
+        const token = getCookie('auth_token');
+        if (!token) {
+            alert("Token d'authentification manquant. Veuillez vous connecter.");
+            return;
+        }
+
+        const payload = parseJwt(token);
+        if (!payload || !payload.id_client) {
+            alert("Token invalide ou ID utilisateur introuvable.");
+            return;
+        }
+
+        const userId = payload.id;
+
+        try {
+            const apiHost = window.location.hostname;
+            const response = await fetch(
+                `https://airlockunlock.alwaysdata.net/AirlockUnlock/client/reservations.php`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: 'Bearer ' + token,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.status !== 'success') {
+                throw new Error(data.message || 'Erreur lors de la récupération des réservations.');
+            }
+
+            const userReservations = data.reservations.filter(
+                reservation => reservation.user_id == userId
+            );
+
+            displayReservations(userReservations);
+        } catch (error) {
+            console.error(error);
+            alert('Impossible de récupérer les réservations : ' + error.message);
+        }
+    }
+
+    function displayReservations(reservations) {
+        const container = document.getElementById('reservations-list');
+        container.innerHTML = '';
+
+        if (!reservations || reservations.length === 0) {
+            container.innerHTML = '<p>Aucune réservation trouvée.</p>';
+            return;
+        }
+
+        const aujourdHui = new Date();
+        aujourdHui.setHours(0, 0, 0, 0);
+
+        const colonnes = {
+            passees: [],
+            enCours: [],
+            aVenir: []
+        };
+
+        reservations.forEach(reservation => {
+            const debut = new Date(reservation.date_arrivee);
+            const fin = new Date(reservation.date_depart);
+            debut.setHours(0, 0, 0, 0);
+            fin.setHours(0, 0, 0, 0);
+
+            if (fin < aujourdHui) {
+                colonnes.passees.push(reservation);
+            } else if (debut <= aujourdHui && fin >= aujourdHui) {
+                colonnes.enCours.push(reservation);
+            } else {
+                colonnes.aVenir.push(reservation);
+            }
+        });
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'reservations-wrapper';
+
+        const creerColonne = (titre, reservations, className) => {
+            const col = document.createElement('div');
+            col.className = `reservation-column ${className}`;
+            col.innerHTML = `<h2>${titre}</h2>`;
+            reservations.forEach(reservation => {
+                const div = document.createElement('div');
+                div.className = 'reservation';
+                div.innerHTML = `
+                    <img src="${reservation.photo_url || 'https://via.placeholder.com/400x200?text=Pas+de+photo'}" alt="${reservation.titre}" />
+                    <div class="reservation-details">
+                        <h3>${reservation.titre}</h3>
+                        <p>${reservation.adresse || ''}</p>
+                        <p><strong>Date de début :</strong> ${reservation.date_arrivee}</p>
+                        <p><strong>Date de fin :</strong> ${reservation.date_depart}</p>
+                        <p><strong>Nombre de personnes :</strong> ${reservation.nombre_personnes}</p>
+                    </div>
+                `;
+        // Lien désactivé :
+        // div.addEventListener('click', () => {
+        //     window.location.href = `reservation?id_reservation=${reservation.id_reservation}`;
+        // });
+                col.appendChild(div);
+            });
+            return col;
+        };
+
+        wrapper.appendChild(creerColonne('Dépassé', colonnes.passees, 'col-passees'));
+        wrapper.appendChild(creerColonne('En cours', colonnes.enCours, 'col-encours'));
+        wrapper.appendChild(creerColonne('Prochainement', colonnes.aVenir, 'col-avenir'));
+
+        container.appendChild(wrapper);
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchReservations);
+    </script>
+    
+</body>
+</html>

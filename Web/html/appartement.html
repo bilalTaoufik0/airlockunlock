@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="img/icon.png" type="image/png">
+
+    <title>Appartement Cosy à Paris - AirLockUnlock</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=AXIrDzQPFvg3bqD-sYgFACNflB6CiROV75XuRFGCusC0q52wAVSs5pbXPq6YhvYuZ4LyXmaM8xkNO2RS&currency=EUR"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #007BFF;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        header .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        header .logo span {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        header nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        header nav a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        header nav a:hover {
+            color: #FFBB33;
+        }
+
+        .profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+            transition: transform 0.3s;
+        }
+
+        .profile img:hover {
+            transform: scale(1.1);
+        }
+
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .profile-menu.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .profile-menu ul {
+            list-style: none;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        .profile-menu ul li {
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+
+        .profile-menu ul li:hover {
+            background-color: #f0f0f0;
+        }
+
+        .profile-menu ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .profile-menu ul li a:hover {
+            color: #007BFF;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #007BFF;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .property-images {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 2rem auto;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .property-images img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            transition: transform 0.4s ease-in-out;
+            display: none;
+        }
+
+        .property-images img.active {
+            display: block;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+        }
+
+        .arrow-left {
+            left: 10px;
+        }
+
+        .arrow-right {
+            right: 10px;
+        }
+
+        .details {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .details .left {
+            flex: 2;
+        }
+
+        .details .right {
+            flex: 1;
+        }
+
+        .details h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #007BFF;
+        }
+
+        .details p {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .amenities {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .amenity {
+            background-color: #007BFF;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .amenity:hover {
+            background-color: #FFBB33;
+        }
+
+        .reviews {
+            margin-top: 3rem;
+        }
+
+        .reviews h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #007BFF;
+        }
+
+        .review {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .review img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #007BFF;
+        }
+
+        .review-details {
+            flex: 1;
+        }
+
+        .review-details h3 {
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .review-details p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .reservation-form {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .reservation-form h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #007BFF;
+            text-align: center;
+        }
+
+        .reservation-form form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reservation-form label {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .reservation-form input {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .paypal-button {
+            margin-top: 1rem;
+        }
+
+        #calendar {
+            margin: 2rem auto;
+            max-width: 800px;
+        }
+
+        @media (max-width: 768px) {
+            .reservation-form {
+                padding: 1rem;
+            }
+
+            .reservation-form h2 {
+                font-size: 1.5rem;
+            }
+
+            .reservation-form label {
+                font-size: 0.9rem;
+            }
+
+            .reservation-form input {
+                font-size: 0.9rem;
+            }
+        }
+
+        footer {
+            background-color: #007BFF;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            color: #FFBB33;
+        }
+
+        /* Style pour les champs en lecture seule */
+        .reservation-form input[readonly] {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="accueil.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                <img src="img/logo.png" alt="Logo AirLockUnlock">
+                <span>AirLockUnlock</span>
+            </a>
+        </div>
+        <div class="profile">
+            <img src="img/hasbula.jpg" alt="Profil">
+            <div class="profile-menu">
+                <ul>
+                    <li><a href="profile.html">Voir le profil</a></li>
+                    <li><a href="index.html">Déconnexion</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 id="property-title">Chargement en cours...</h1>
+
+        <div class="property-images">
+            <button class="arrow arrow-left">&#10094;</button>
+            <div id="property-images-container"></div>
+            <button class="arrow arrow-right">&#10095;</button>
+        </div>
+
+        <div class="details">
+            <div class="left">
+                <h2>Description</h2>
+                <p id="property-description">Chargement de la description...</p>
+
+                <div class="amenities" id="amenities-container"></div>
+            </div>
+
+            <div class="right">
+                <h2>Prix par nuit</h2>
+                <p id="property-price"><strong>Chargement...</strong></p>
+            </div>
+        </div>
+
+        <div class="reviews">
+            <h2>Avis des visiteurs</h2>
+            <div id="reviews-container">
+                <!-- Avis de Lakshan Sangaralingam -->
+                <div class="review">
+                    <img src="img/lakshan.jpeg" alt="Lakshan Sangaralingam" />
+                    <div class="review-details">
+                        <h3>Lakshan Sangaralingam</h3>
+                        <p>★★★★★ - Excellent séjour ! L'appartement était parfaitement propre, bien situé et correspondait exactement à la description. Je recommande vivement !</p>
+                    </div>
+                </div>
+
+                <!-- Avis de Adel Aichi -->
+                <div class="review">
+                    <img src="img/adel.jpeg" alt="Adel Aichi" />
+                    <div class="review-details">
+                        <h3>Adel Aichi</h3>
+                        <p>★★★★☆ - Très bon emplacement et appartement confortable. Petit bémol sur le bruit de la rue le soir, mais dans l'ensemble une très bonne expérience.</p>
+                    </div>
+                </div>
+
+                <!-- Avis de Bilal Taoufik -->
+                <div class="review">
+                    <img src="img/bilal.jpeg" alt="Bilal Taoufik" />
+                    <div class="review-details">
+                        <h3>Bilal Taoufik</h3>
+                        <p>★★★★★ - Séjour parfait ! L'hôte était très réactif et arrangeant. L'appartement est encore mieux en vrai que sur les photos. À refaire sans hésiter.</p>
+                    </div>
+                </div>
+
+                <!-- Avis de Amine El Mir -->
+                <div class="review">
+                    <img src="img/amine.png" alt="Amine El Mir" />
+                    <div class="review-details">
+                        <h3>Amine El Mir</h3>
+                        <p>★★★★☆ - Très bon rapport qualité-prix. L'appartement est bien équipé et proche des transports. Juste un peu petit pour 4 personnes mais parfait pour un couple.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="calendar"></div>
+
+        <div class="reservation-form">
+            <h2>Réservez maintenant</h2>
+            <form id="reservationForm">
+                <label for="name">Nom:</label>
+                <input type="text" id="name" name="nom" required readonly>
+
+                <label for="checkin">Date d'arrivée:</label>
+                <input type="date" id="checkin" name="date_arrivee" required>
+
+                <label for="checkout">Date de départ:</label>
+                <input type="date" id="checkout" name="date_depart" required>
+
+                <label for="guests">Nombre de personnes:</label>
+                <input type="number" id="guests" name="nombre_personnes" min="1" required>
+
+                <p>Capacité maximale: <span id="property-capacity">-</span> personnes</p>
+
+                <input type="hidden" id="property-id" name="id_bien" value="">
+
+                <div id="total-price" style="text-align: center; font-size: 1.2rem; margin-bottom: 10px;">
+                    Prix total : <span id="total-amount">- €</span>
+                </div>
+
+                <div id="paypal-button-container"></div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 AirLockUnlock. Tous droits réservés.</p>
+        <p><a href="#">Politique de confidentialité</a> | <a href="#">Conditions d'utilisation</a></p>
+    </footer>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        // Fonction pour supprimer un cookie
+        function deleteCookie(name) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+
+        // Fonction pour gérer la déconnexion
+        function handleLogout(event) {
+            event.preventDefault(); // Empêcher le comportement par défaut du lien
+            deleteCookie('auth_token'); // Supprimer le cookie contenant le token
+            window.location.href = 'index'; // Rediriger vers la page de connexion
+        }
+
+        const profile = document.querySelector('.profile');
+        const profileMenu = document.querySelector('.profile-menu');
+
+        profile.addEventListener('click', () => {
+            profileMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!profile.contains(event.target) && !profileMenu.contains(event.target)) {
+                profileMenu.classList.remove('active');
+            }
+        });
+
+        // Ajouter un gestionnaire d'événements pour la déconnexion
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutLink = document.querySelector('.profile-menu a[href="index"]');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', handleLogout);
+            }
+        });
+
+        emailjs.init("qngsnA0v0RgtX9ypF"); // Clé publique EmailJS
+
+        let currentProperty = null;
+        let pricePerNight = 0;
+        let totalPrice = 0;
+
+        // Récupère un cookie spécifique
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // Décode un token JWT (JSON Web Token)
+        function decodeJWT(token) {
+            try {
+                const payloadBase64 = token.split('.')[1];
+                // Remplace les caractères non-url-safe et ajoute le padding si nécessaire
+                const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+                const payloadJson = atob(base64);
+                return JSON.parse(payloadJson);
+            } catch (e) {
+                console.error("Erreur de décodage du token:", e);
+                return null;
+            }
+        }
+
+        // Remplit automatiquement le nom depuis le token
+        function fillNameFromToken() {
+            const token = getCookie('auth_token');
+            if (token) {
+                const decoded = decodeJWT(token);
+                if (decoded && decoded.nom) {
+                    // Remplit un champ de formulaire si présent
+                    const nameInput = document.getElementById('name');
+                    if (nameInput) {
+                        nameInput.value = decoded.nom;
+                        nameInput.readOnly = true;
+                    }
+
+                    // Affiche le nom dans l'interface
+                    const userNameDisplay = document.getElementById('user-name');
+                    if (userNameDisplay) {
+                        userNameDisplay.innerText = decoded.name || decoded.nom;
+                    }
+                }
+            }
+        }
+
+        function getIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id_bien');
+        }
+
+        async function fetchPropertyDetails() {
+            const id_bien = getIdFromUrl();
+            if (!id_bien) {
+                document.getElementById('property-title').innerText = 'Aucun bien sélectionné.';
+                return;
+            }
+
+            try {
+                const apiHost = window.location.hostname;
+                const response = await fetch(`https://airlockunlock.alwaysdata.net/AirlockUnlock/bien/biens.php?id_bien=${id_bien}`);
+                if (!response.ok) throw new Error('Erreur lors de la récupération du bien.');
+
+                const biens = await response.json();
+                if (!Array.isArray(biens) || biens.length === 0) {
+                    document.getElementById('property-title').innerText = 'Bien introuvable.';
+                    return;
+                }
+
+                currentProperty = biens[0];
+                pricePerNight = parseFloat(currentProperty.prix_par_nuit);
+                displayProperty(currentProperty);
+                loadImages(currentProperty);
+                loadAmenities(currentProperty);
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('property-title').innerText = 'Une erreur est survenue.';
+            }
+        }
+
+        function displayProperty(bien) {
+            document.getElementById('property-title').innerText = bien.titre;
+            document.getElementById('property-description').innerText = bien.description;
+            document.getElementById('property-price').innerHTML = `${bien.prix_par_nuit} € par nuit`;
+            document.getElementById('property-capacity').innerText = bien.capacite;
+            document.getElementById('property-id').value = bien.id_bien;
+        }
+
+        function loadImages(property) {
+            const container = document.getElementById('property-images-container');
+            container.innerHTML = '';
+
+            if (property.photo_url) {
+                const img = document.createElement('img');
+                img.src = property.photo_url.trim();
+                img.alt = property.titre;
+                img.classList.add('active');
+                container.appendChild(img);
+            }
+        }
+
+        function loadAmenities(property) {
+            const amenitiesContainer = document.getElementById('amenities-container');
+            amenitiesContainer.innerHTML = '';
+
+            const amenities = property.amenities || [];
+            amenities.forEach(amenity => {
+                const amenityDiv = document.createElement('div');
+                amenityDiv.classList.add('amenity');
+                amenityDiv.innerText = amenity;
+                amenitiesContainer.appendChild(amenityDiv);
+            });
+        }
+
+        function updateTotalPrice() {
+            const checkinDate = document.getElementById('checkin').value;
+            const checkoutDate = document.getElementById('checkout').value;
+
+            if (checkinDate && checkoutDate) {
+                const checkin = new Date(checkinDate);
+                const checkout = new Date(checkoutDate);
+                const timeDifference = checkout - checkin;
+                const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+                if (daysDifference > 0) {
+                    totalPrice = pricePerNight * daysDifference;
+                    document.getElementById('total-amount').innerText = `${totalPrice.toFixed(2)} €`;
+                } else {
+                    document.getElementById('total-amount').innerText = 'Erreur';
+                }
+            }
+        }
+
+        document.getElementById('checkin').addEventListener('change', updateTotalPrice);
+        document.getElementById('checkout').addEventListener('change', updateTotalPrice);
+
+        document.getElementById('guests').addEventListener('change', function() {
+            const guestsInput = document.getElementById('guests');
+            const capacity = parseInt(document.getElementById('property-capacity').innerText);
+            const guests = parseInt(guestsInput.value);
+
+            if (guests > capacity) {
+                guestsInput.style.borderColor = 'red';
+                alert('Le nombre de personnes dépasse la capacité maximale du bien.');
+            } else {
+                guestsInput.style.borderColor = '';
+            }
+        });
+
+        function sendReservationToAPI() {
+            const reservationData = {
+                id_bien: document.getElementById('property-id').value,
+                date_arrivee: document.getElementById('checkin').value,
+                date_depart: document.getElementById('checkout').value,
+                nombre_personnes: document.getElementById('guests').value
+            };
+
+            const token = getCookie('auth_token');
+            const apiHost = window.location.hostname;
+
+            fetch(`https://airlockunlock.alwaysdata.net/AirlockUnlock/bien/reserver.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: new URLSearchParams(reservationData)
+            });
+        }
+
+        function sendConfirmationEmail() {
+            if (!currentProperty) {
+                alert("Aucun bien chargé.");
+                return;
+            }
+
+            const checkin = document.getElementById('checkin').value;
+            const checkout = document.getElementById('checkout').value;
+            const guests = document.getElementById('guests').value;
+
+            if (!checkin || !checkout || !guests) {
+                alert("Veuillez remplir les dates et le nombre de personnes.");
+                return;
+            }
+
+            const token = getCookie('auth_token');
+            const decoded = decodeJWT(token);
+            const to_email = decoded?.email;
+
+            if (!to_email) {
+                console.error("Aucune adresse e-mail trouvée dans le token.");
+                alert("Erreur : adresse e-mail manquante.");
+                return;
+            }
+
+            const emailParams = {
+                titre: currentProperty.titre,
+                nombre_personnes: guests,
+                date_arrivee: checkin,
+                date_depart: checkout,
+                to_email: to_email
+            };
+
+            console.log("Envoi d'email avec paramètres :", emailParams);
+
+            emailjs.send('service_xgn8hbm', 'template_9p9pkcm', emailParams)
+                .then(() => {
+                    alert("Email de confirmation envoyé !");
+                })
+                .catch((error) => {
+                    console.error("Erreur en envoyant l'email :", error);
+                    alert("Erreur lors de l'envoi de l'email de confirmation.");
+                });
+        }
+
+        // Nouvelle version de fetchReservedDates filtrée par id_bien de l'URL
+        async function fetchReservedDates() {
+            const apiHost = window.location.hostname;
+            const token = getCookie('auth_token');
+            const idBienCible = getIdFromUrl();
+
+            if (!token) {
+                console.error('Token manquant. Impossible de récupérer les réservations.');
+                return [];
+            }
+
+            if (!idBienCible) {
+                console.warn('id_bien manquant dans l’URL, aucune réservation affichée.');
+                return [];
+            }
+
+            try {
+                const response = await fetch(`https://airlockunlock.alwaysdata.net/AirlockUnlock/client/reservations.php`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur lors de la récupération des réservations.');
+
+                const data = await response.json();
+
+                if (data.status !== 'success' || !Array.isArray(data.reservations)) {
+                    console.error('Réponse API invalide.');
+                    return [];
+                }
+
+                // Filtrer les réservations uniquement pour le bien courant
+                const filteredReservations = data.reservations.filter(res => res.id_bien == idBienCible);
+
+                return filteredReservations.map(reservation => ({
+                    start: reservation.date_arrivee,
+                    end: new Date(new Date(reservation.date_depart).getTime() + 86400000).toISOString().split('T')[0],
+                    display: 'background',
+                    color: '#ff4d4d',
+                    title: 'Réservé'
+                }));
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                return [];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            await fetchPropertyDetails();
+            fillNameFromToken();
+
+            const calendarEl = document.getElementById('calendar');
+            const reservedDates = await fetchReservedDates();
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: reservedDates,
+                height: 'auto',
+                eventDisplay: 'background',
+                eventColor: '#ff4d4d', // Rouge pour réservations du bien
+                dayMaxEventRows: true,
+            });
+
+            calendar.render();
+        });
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                sendConfirmationEmail(); // Envoi l'e-mail ici
+                sendReservationToAPI();  // Et réserve en base
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: totalPrice.toFixed(2)
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    alert('Transaction complétée par ' + details.payer.name.given_name);
+                    window.location.href = 'https://www.paypal.com';
+                });
+            }
+        }).render('#paypal-button-container');
+    </script>
+
+</body>
+</html>

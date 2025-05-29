@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="img/icon.png" type="image/png">
+
+    <title>AirLockUnlock - Accueil Propriétaire</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #007BFF;
+            --secondary: #0056b3;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --gray: #94a3b8;
+            --light-gray: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo img {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        .logo-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: white;
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--light-gray);
+            transform: translateY(-1px);
+        }
+
+        .btn-logout {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .welcome-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .welcome-text h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-text p {
+            color: var(--gray);
+            font-size: 1.125rem;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card-title {
+            font-size: 1rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .stat-card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .icon-apartment {
+            background-color: #6366f1;
+        }
+
+        .icon-house {
+            background-color: #f59e0b;
+        }
+
+        .icon-office {
+            background-color: #10b981;
+        }
+
+        .icon-reservation {
+            background-color: #ec4899;
+        }
+
+        .icon-lock {
+            background-color: #3b82f6;
+        }
+
+        .icon-add {
+            background-color: #8b5cf6;
+        }
+
+        .stat-card-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card-desc {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .action-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 2px dashed var(--light-gray);
+            transition: all 0.3s ease;
+            min-height: 100%;
+        }
+
+        .action-card:hover {
+            border-color: var(--primary);
+            background-color: #f8fafc;
+        }
+
+        .action-card-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .action-card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .action-card-desc {
+            color: var(--gray);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-action {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-action:hover {
+            background-color: var(--secondary);
+            color: white;
+            transform: none;
+        }
+
+        .verify-section {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .verify-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .verify-form {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .verify-input {
+            flex: 1;
+            padding: 0.625rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .verify-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .verify-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .welcome-section {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .verify-form {
+                flex-direction: column;
+            }
+
+            .verify-btn {
+                padding: 0.625rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="img/logo.png" alt="AirLockUnlock Logo">
+            <span class="logo-text">AirLockUnlock</span>
+        </div>
+        <button id="logout-btn" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+    </header>
+
+    <div class="container">
+        <section class="welcome-section">
+            <div class="welcome-text">
+                <h1 id="welcome-message">Bienvenue, Utilisateur</h1>
+                <p>Gérez vos propriétés et réservations en toute simplicité</p>
+            </div>
+            <a href="publier-bien.html" class="btn btn-primary"><i class="fas fa-plus"></i> Publier un bien</a>
+        </section>
+
+        <section class="stats-cards">
+            <div class="stat-card action-card" onclick="location.href='gerer.html'">
+                <div class="action-card-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3 class="action-card-title">Gérer les biens</h3>
+                <p class="action-card-desc"> modifiez ou supprimez vos appartements</p>
+                <a href="gerer.html" class="btn btn-action">Voir</a>
+            </div>
+
+            <div class="stat-card action-card" onclick="window.open('https://www.tapkey.com', '_blank')">
+                <div class="action-card-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 class="action-card-title">Acheter des Serrures</h3>
+                <p class="action-card-desc">Achetez des serrures Tapkey</p>
+                <a href="https://www.tapkey.com" target="_blank" class="btn btn-action">Acheter</a>
+            </div>
+
+            <div class="stat-card action-card" onclick="location.href='publier-bien.html'">
+                <div class="action-card-icon" style="color: var(--success);">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h3 class="action-card-title">Publier un Bien</h3>
+                <p class="action-card-desc">Mettez en location votre propriété</p>
+                <a href="publier-bien.html" class="btn btn-action" style="background-color: var(--success);">Publier</a>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 AirLockUnlock. Tous droits réservés.</p>
+            <div class="footer-links">
+                <a href="#">Confidentialité</a>
+                <a href="#">Conditions</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Fonction pour supprimer un cookie de manière plus robuste
+        function deleteCookie(name) {
+            // Supprimer le cookie avec différents chemins et domaines possibles
+            const paths = ['/', '/index.html', ''];
+            const domains = [window.location.hostname, '.' + window.location.hostname, ''];
+            
+            paths.forEach(path => {
+                domains.forEach(domain => {
+                    let cookieString = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
+                    if (domain) {
+                        cookieString += ` domain=${domain};`;
+                    }
+                    document.cookie = cookieString;
+                });
+            });
+            
+            // Vérifier si le cookie a été supprimé
+            console.log('Cookie auth_token après suppression:', getCookie('auth_token'));
+        }
+
+        // Fonction pour gérer la déconnexion
+        function handleLogout() {
+            // Afficher une confirmation
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                // Supprimer le token d'authentification
+                deleteCookie('auth_token');
+                
+                // Supprimer également du localStorage et sessionStorage si présent
+                localStorage.removeItem('auth_token');
+                sessionStorage.removeItem('auth_token');
+                
+                // Optionnel : Vider tout le localStorage/sessionStorage lié à l'auth
+                Object.keys(localStorage).forEach(key => {
+                    if (key.includes('auth') || key.includes('user') || key.includes('token')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                
+                // Afficher un message de confirmation
+                alert('Déconnexion réussie !');
+                
+                // Rediriger vers la page de connexion
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Fonction pour lire un cookie
+        function getCookie(nom) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${nom}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+    
+        // Fonction pour décoder la payload d'un JWT
+        function parseJwt(token) {
+            try {
+                const base64Payload = token.split('.')[1]; // payload = 2ème partie
+                const payload = atob(base64Payload); // décoder base64
+                return JSON.parse(payload);
+            } catch (e) {
+                console.error('Erreur de décodage du JWT:', e);
+                return null;
+            }
+        }
+    
+        // Fonction principale pour insérer le nom dans la page
+        function fillNameFromToken() {
+            const token = getCookie('auth_token');
+            let nom = 'Utilisateur';
+    
+            if (token) {
+                const payload = parseJwt(token);
+                if (payload && payload.nom) {
+                    nom = payload.nom;
+                } else if (payload && payload.username) {
+                    nom = payload.username;
+                }
+    
+                // Champ de formulaire s'il existe
+                const nameInput = document.getElementById('name');
+                if (nameInput) {
+                    nameInput.value = nom;
+                    nameInput.readOnly = true;
+                }
+    
+                // Élément d'affichage utilisateur s'il existe
+                const userNameDisplay = document.getElementById('user-name');
+                if (userNameDisplay) {
+                    userNameDisplay.innerText = nom;
+                }
+            }
+    
+            // Message de bienvenue
+            const welcomeMessage = document.getElementById('welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Bienvenue, ${nom}`;
+            }
+        }
+
+        // Fonction pour vérifier si l'utilisateur est connecté
+        function checkAuthentication() {
+            const token = getCookie('auth_token');
+            if (!token) {
+                // Si pas de token, rediriger vers la page de connexion
+                alert('Session expirée. Veuillez vous reconnecter.');
+                window.location.href = 'index.html';
+                return false;
+            }
+            return true;
+        }
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            // Vérifier l'authentification au chargement de la page
+            checkAuthentication();
+            
+            // Remplir le nom de l'utilisateur
+            fillNameFromToken();
+
+            // Ajouter l'événement de déconnexion au bouton
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+    
+            // Vérification du numéro de série (si la section existe)
+            const verifyBtn = document.querySelector('.verify-btn');
+            if (verifyBtn) {
+                verifyBtn.addEventListener('click', function () {
+                    const serialNumber = document.querySelector('.verify-input').value;
+                    if (serialNumber.trim() === '') {
+                        alert('Veuillez entrer un numéro de série');
+                        return;
+                    }
+                    alert(`Numéro de série ${serialNumber} vérifié avec succès!`);
+                });
+            }
+    
+            // Animation au survol des cartes
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                });
+    
+                card.addEventListener('mouseleave', function () {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                });
+            });
+        });
+
+        // Vérification périodique de l'authentification (optionnel)
+        setInterval(function() {
+            const token = getCookie('auth_token');
+            if (!token) {
+                alert('Session expirée. Veuillez vous reconnecter.');
+                window.location.href = 'index.html';
+            }
+        }, 300000); // Vérifier toutes les 5 minutes
+    </script>
+</body>
+</html>

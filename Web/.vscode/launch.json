@@ -1,0 +1,23 @@
+
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Debug on Kali VM",
+            "url": "http://172.16.15.106:8080/signup.html", // Local port after SSH tunneling
+            "webRoot": "${workspaceFolder}",
+            "sourceMaps": false,
+            "sourceMapPathOverrides": {
+                "webpack:///./src/*": "${webRoot}/*"
+            },
+            "port": 9222, // Chrome remote debugging port
+            "runtimeArgs": [
+                "--remote-debugging-port=9222"
+            ],
+            "userDataDir": "${workspaceFolder}/.vscode/chrome-profile"
+        }
+    ]
+}
