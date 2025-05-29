@@ -332,12 +332,15 @@
       const formData = new FormData(form);
       const errorElement = document.getElementById(type === 'Client' ? 'clientError' : 'ownerError');
 
+      // Construire un objet simple pour envoyer en JSON
       const data = {};
       formData.forEach((value, key) => {
+        // Attention: adapter ici les noms aux attendus PHP (ex: mot_de_passe et telephone)
+        if (key === 'password') key = 'mot_de_passe';
+        if (key === 'phone') key = 'telephone';
         data[key] = value;
       });
 
-      const apiHost = window.location.hostname;
       const url = type === 'Propriétaire'
         ? `https://airlockunlock.alwaysdata.net/AirlockUnlock/proprietaire/inscription.php`
         : `https://airlockunlock.alwaysdata.net/AirlockUnlock/client/inscription.php`;
@@ -352,25 +355,22 @@
         });
 
         const result = await response.json();
-        
-        if (response.ok) {
-          // Redirection vers la page de connexion après 2 secondes
-          setTimeout(() => {
-            window.location.href = 'index?registered=true';
-          }, 2000);
-          
-          // Afficher un message de succès
+
+        if (response.ok && !result.error) {
           errorElement.textContent = 'Inscription réussie ! Redirection en cours...';
           errorElement.style.color = '#38a169';
           errorElement.style.display = 'block';
+
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2000);
         } else {
-          // Afficher l'erreur retournée par le serveur
-          errorElement.textContent = result.message || `Erreur lors de l'inscription: ${response.statusText}`;
+          errorElement.textContent = result.error || `Erreur lors de l'inscription : ${response.statusText}`;
           errorElement.style.color = '#e53e3e';
           errorElement.style.display = 'block';
         }
       } catch (error) {
-        errorElement.textContent = `Erreur réseau: ${error.message}`;
+        errorElement.textContent = `Erreur réseau : ${error.message}`;
         errorElement.style.color = '#e53e3e';
         errorElement.style.display = 'block';
       }
